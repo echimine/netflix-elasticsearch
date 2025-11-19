@@ -1,6 +1,13 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
+const { Client } = require('@elastic/elasticsearch');
+
+// Initialize Elasticsearch client with environment variables
+const client = new Client({
+  node: process.env.ELASTIC_URL || 'http://localhost:9200',
+});
 
 // Path to the Netflix history CSV file
 const csvFilePath = path.join(__dirname, '../data/historic_netflix.csv');
@@ -11,7 +18,7 @@ const results = [];
 fs.createReadStream(csvFilePath)
   .pipe(csv())
   .on('data', (data) => results.push(data)) // Collect each row of data
-  .on('end', () => {
+  .on('end', async () => {
     // Process the collected data
     const cleanedData = results
       .filter(item => {
@@ -45,7 +52,30 @@ fs.createReadStream(csvFilePath)
         };
       });
 
-    // Output the cleaned data as JSON to the console
-    console.log(JSON.stringify(cleanedData, null, 2));
-  });
+    console.log(`Parsed ${cleanedData.length} records. Indexing to Elasticsearch...`);
 
+    const indexName = 'historic_netflix';
+    
+    try {
+        // Prepare bulk body
+        const body = cleanedData.flatMap(doc => [
+            { index: { _index: indexName } },
+            doc
+        ]);
+
+        // Execute bulk index
+        const { errors, items } = await client.bulk({ body });
+
+        if (errors) {
+            const erroredDocuments = items.filter((item) => item.index && item.index.error);
+            console.log('Errors occurred during bulk indexing:', erroredDocuments);
+        } else {
+            console.log(`Successfully indexed ${items.length} documents.`);
+        }
+    } catch (error) {
+        console.error('Elasticsearch error:', error);
+        if (error.meta && error.meta.body) {
+            console.error('Error body:', JSON.stringify(error.meta.body, null, 2));
+        }
+    }
+  });

@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Netflix Elasticsearch Project
 
-## Getting Started
+This project indexes Netflix viewing history into Elasticsearch for analysis and visualization.
 
-First, run the development server:
+## Prerequisites
+
+- **Node.js** (v18 or later)
+- **Docker** & **Docker Compose**
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd netflix-elasticsearch
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+## Configuration
+
+1. Create a `.env` file in the root directory. You can copy the example:
+   ```bash
+   cp env.example .env
+   ```
+
+2. Ensure your `.env` contains the following for local development:
+   ```env
+   ELASTIC_URL=http://localhost:9200
+   ```
+
+## Running the Project
+
+### 1. Start Elasticsearch
+
+Start the database container using Docker:
+
+```bash
+docker compose up -d
+```
+
+- **Elasticsearch** will be available at `http://localhost:9200`
+
+> **Note:** Wait a minute for the container to fully start. You can check status with `docker ps`.
+
+### 2. Ingest Data
+
+Run the cleaning and ingestion script to parse `data/historic_netflix.csv` and send it to Elasticsearch:
+
+```bash
+npm run clean-data
+```
+
+If successful, you should see:
+`Successfully indexed X documents.`
+
+### 3. Start the Web App
+
+Run the Next.js development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stopping the Project
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To stop and remove the Docker container:
 
-## Learn More
+```bash
+docker compose down
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Troubleshooting
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Connection Error**: Ensure Docker is running and you waited enough time for Elasticsearch to start.
