@@ -1,6 +1,6 @@
 # Projet Netflix viewer
 
-> Lire attentivement *tout* le sujet avant de commencer le projet.
+> Lire attentivement _tout_ le sujet avant de commencer le projet.
 
 ## 1. Modalités Générales
 
@@ -33,21 +33,25 @@ L’objectif est de réaliser une chaîne complète de traitement de la donnée 
 ### Étape 3 : Application web
 
 #### Page Catalogue
+
 - Liste films/séries
 - Filtre type, année, recherche textuelle, genres (bonus)
 
 #### Page Profil
+
 - Stats du profil
 - Top films/séries
 - Goûts similaires
 - Graphique activité
 
 #### Page Détail Série
+
 - Titre, description
 - Épisodes vus
 - Profils ayant visionné
 
 #### Page Détail Film
+
 - Titre, durée, année
 - Profils ayant visionné
 

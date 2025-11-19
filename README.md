@@ -10,6 +10,7 @@ This project indexes Netflix viewing history into Elasticsearch for analysis and
 ## Installation
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd netflix-elasticsearch
@@ -23,6 +24,7 @@ This project indexes Netflix viewing history into Elasticsearch for analysis and
 ## Configuration
 
 1. Create a `.env` file in the root directory. You can copy the example:
+
    ```bash
    cp env.example .env
    ```
@@ -74,6 +76,11 @@ To stop and remove the Docker container:
 ```bash
 docker compose down
 ```
+
+## Documentation
+
+- [Guide des Requêtes Elasticsearch](ELASTICSEARCH_QUERIES.md)
+- [Documentation API](API_DOCUMENTATION.md)
 
 ## Troubleshooting
 
