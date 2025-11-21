@@ -2,13 +2,14 @@
   "name": "netflix-elasticsearch",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "clean-data": "ts-node scripts/clean_data.ts"
+    "clean-data": "npx -y tsx scripts/clean_data.ts"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.19.1",

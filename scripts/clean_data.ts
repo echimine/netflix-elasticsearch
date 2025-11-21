@@ -4,6 +4,11 @@ import path from 'path';
 import csv from 'csv-parser';
 import { client } from '../client/elastic-search-client';
 
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Path to the Netflix history CSV file
 const csvFilePath = path.join(__dirname, '../data/historic_netflix.csv');
 
@@ -22,6 +27,7 @@ interface CleanedNetflixData {
   duration: number;
   deviceType: string;
   country: string;
+  type: string;
 }
 
 const results: NetflixHistoryItem[] = [];
@@ -45,14 +51,30 @@ fs.createReadStream(csvFilePath)
         const durationParts = item['Duration'].split(':');
         let durationSeconds = 0;
         if (durationParts.length === 3) {
-          durationSeconds =
-            parseInt(durationParts[0]) * 3600 +
-            parseInt(durationParts[1]) * 60 +
-            parseInt(durationParts[2]);
+          const hours = durationParts[0] ?? '0';
+          const minutes = durationParts[1] ?? '0';
+          const seconds = durationParts[2] ?? '0';
+          durationSeconds = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
         }
 
         // Convert Start Time to ISO 8601 date string
         const startTime = new Date(item['Start Time']).toISOString();
+
+        // Infer type from Title
+        const title = item['Title'];
+        let type = 'Movie';
+        const tvShowKeywords = [
+          'Season',
+          'Saison',
+          'Episode',
+          'Épisode',
+          'Mini-série',
+          'Limited Series',
+          'Partie',
+        ];
+        if (tvShowKeywords.some((keyword) => title.includes(keyword))) {
+          type = 'TV Show';
+        }
 
         // Return the cleaned and transformed object
         return {
@@ -61,6 +83,7 @@ fs.createReadStream(csvFilePath)
           duration: durationSeconds,
           deviceType: item['Device Type'],
           country: item['Country'],
+          type: type,
         };
       });
 
