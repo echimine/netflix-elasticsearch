@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { NetflixHistoryItem } from '@/lib/api';
+import type { NetflixHistoryItem } from '@/lib/api';
 
 export interface HistoryFilters {
   search: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { NetflixHistoryItem } from '@/lib/api';
+import type { NetflixHistoryItem } from '@/lib/api';
 import { getTotalWatchTime, formatDuration } from '@/lib/formatters';
 import { StatisticsCard } from '@/components/dashboard/StatisticsCard';
 import { ViewingTimeChart } from '@/components/dashboard/ViewingTimeChart';

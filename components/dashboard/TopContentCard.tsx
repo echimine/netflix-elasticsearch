@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { NetflixHistoryItem } from '@/lib/api';
+import type { NetflixHistoryItem } from '@/lib/api';
 import { formatDuration } from '@/lib/formatters';
 
 interface TopContentCardProps {

@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { NetflixHistoryItem } from '@/lib/api';
+import type { NetflixHistoryItem } from '@/lib/api';
 import { formatDate, formatDuration } from '@/lib/formatters';
 
 interface HistoryTableProps {

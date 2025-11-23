@@ -1,6 +1,6 @@
 'use client';
 
-import { NetflixHistoryItem } from '@/lib/api';
+import type { NetflixHistoryItem } from '@/lib/api';
 import { useHistoryFilter } from '@/hooks/useHistoryFilter';
 import { HistoryFilter } from '@/components/history/HistoryFilter';
 import { HistoryTable } from '@/components/history/HistoryTable';

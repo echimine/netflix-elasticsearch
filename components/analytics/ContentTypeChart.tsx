@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { NetflixHistoryItem } from '@/lib/api';
+import type { NetflixHistoryItem } from '@/lib/api';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 interface ContentTypeChartProps {
@@ -41,7 +41,7 @@ export function ContentTypeChart({ items }: ContentTypeChartProps) {
               cy="50%"
               labelLine={false}
               label={({ name, percent }) =>
-                `${name}: ${(percent * 100).toFixed(0)}%`
+                `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
               }
               outerRadius={80}
               fill="#8884d8"

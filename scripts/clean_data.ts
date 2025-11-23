@@ -16,6 +16,7 @@ interface NetflixHistoryItem {
   Title: string;
   'Start Time': string;
   Duration: string;
+  'Profile Name': string;
   Attributes: string;
   'Device Type': string;
   Country: string;
@@ -28,6 +29,7 @@ interface CleanedNetflixData {
   deviceType: string;
   country: string;
   type: string;
+  profileName: string;
 }
 
 const results: NetflixHistoryItem[] = [];
@@ -84,6 +86,7 @@ fs.createReadStream(csvFilePath)
           deviceType: item['Device Type'],
           country: item['Country'],
           type: type,
+          profileName: item['Profile Name'],
         };
       });
 

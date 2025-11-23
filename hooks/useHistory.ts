@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAllHistory, NetflixHistoryItem } from '@/lib/api';
+import { getAllHistory } from '@/lib/api';
+import type { NetflixHistoryItem } from '@/lib/api';
 
 export function useHistory() {
   const [data, setData] = useState<NetflixHistoryItem[]>([]);

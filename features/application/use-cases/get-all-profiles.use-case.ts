@@ -1,13 +1,13 @@
 import { NetflixRepository } from '../infrastructure/repositories/netflix.repository';
 
-export class GetHistoryByTypeUseCase {
+export class GetAllProfilesUseCase {
   private netflixRepository: NetflixRepository;
 
   constructor(netflixRepository: NetflixRepository) {
     this.netflixRepository = netflixRepository;
   }
 
-  async execute(type: string, limit: number = 100) {
-    return this.netflixRepository.getHistoryByType(type, limit);
+  async execute(): Promise<string[]> {
+    return this.netflixRepository.getProfiles();
   }
 }

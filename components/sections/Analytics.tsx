@@ -1,6 +1,6 @@
 'use client';
 
-import { NetflixHistoryItem } from '@/lib/api';
+import type { NetflixHistoryItem } from '@/lib/api';
 import { DeviceDistributionChart } from '@/components/analytics/DeviceDistributionChart';
 import { CountryBreakdownChart } from '@/components/analytics/CountryBreakdownChart';
 import { ContentTypeChart } from '@/components/analytics/ContentTypeChart';

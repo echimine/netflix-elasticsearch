@@ -11,9 +11,9 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Search, X } from 'lucide-react';
-import { HistoryFilters } from '@/hooks/useHistoryFilter';
+import type { HistoryFilters } from '@/hooks/useHistoryFilter';
 import { getUniqueValues } from '@/lib/formatters';
-import { NetflixHistoryItem } from '@/lib/api';
+import type { NetflixHistoryItem } from '@/lib/api';
 
 interface HistoryFilterProps {
   filters: HistoryFilters;
