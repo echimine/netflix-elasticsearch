@@ -7,7 +7,7 @@ export class GetAllHistoryUseCase {
     this.netflixRepository = netflixRepository;
   }
 
-  async execute() {
-    return this.netflixRepository.getAllNetflixHistory();
+  async execute(limit: number = 100) {
+    return this.netflixRepository.getAllNetflixHistory(limit);
   }
 }
