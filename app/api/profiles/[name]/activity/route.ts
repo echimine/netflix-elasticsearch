@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GetProfileActivityUseCase } from '@/features/application/use-cases/get-profile-activity.use-case';
-import { NetflixRepository } from '@/features/application/infrastructure/repositories/netflix.repository';
+import { NetflixRepository } from '@/features/application/infrastructure/repositories/netflix_repository';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
   try {

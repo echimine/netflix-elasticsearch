@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GetAllProfilesUseCase } from '@/features/application/use-cases/get-all-profiles.use-case';
-import { NetflixRepository } from '@/features/application/infrastructure/repositories/netflix.repository';
+import { NetflixRepository } from '@/features/application/infrastructure/repositories/netflix_repository';
 
 export async function GET() {
   try {

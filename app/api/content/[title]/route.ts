@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GetContentDetailsUseCase } from '@/features/application/use-cases/get-content-details.use-case';
-import { NetflixRepository } from '@/features/application/infrastructure/repositories/netflix.repository';
+import { NetflixRepository } from '@/features/application/infrastructure/repositories/netflix_repository';
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ title: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ title: string }> }
+) {
   try {
     const { title: titleParam } = await params;
     const title = decodeURIComponent(titleParam);

@@ -1,5 +1,5 @@
-import { NetflixRepository } from '../infrastructure/repositories/netflix.repository';
-import type { NetflixHistoryItem } from '../infrastructure/repositories/netflix.repository';
+import { NetflixRepository } from '../infrastructure/repositories/netflix_repository';
+import type { NetflixHistoryItem } from '../infrastructure/repositories/netflix_repository';
 
 export interface CatalogueItem {
   title: string;
@@ -16,7 +16,11 @@ export class GetCatalogueUseCase {
     this.netflixRepository = netflixRepository;
   }
 
-  async execute(filters: { type?: string; year?: number; search?: string }): Promise<CatalogueItem[]> {
+  async execute(filters: {
+    type?: string;
+    year?: number;
+    search?: string;
+  }): Promise<CatalogueItem[]> {
     // Get all matching history items
     const historyItems = await this.netflixRepository.getHistoryByFilters(filters, 10000);
 

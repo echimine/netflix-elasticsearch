@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GetProfileTopContentUseCase } from '@/features/application/use-cases/get-profile-top-content.use-case';
-import { NetflixRepository } from '@/features/application/infrastructure/repositories/netflix.repository';
+import { NetflixRepository } from '@/features/application/infrastructure/repositories/netflix_repository';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
   try {
@@ -12,7 +12,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Validate limit
     if (isNaN(limit) || limit < 1 || limit > 100) {
-      return NextResponse.json({ error: 'Invalid limit parameter. Must be between 1 and 100' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid limit parameter. Must be between 1 and 100' },
+        { status: 400 }
+      );
     }
 
     const netflixRepository = new NetflixRepository();

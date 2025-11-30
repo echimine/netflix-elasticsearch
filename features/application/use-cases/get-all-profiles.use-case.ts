@@ -1,4 +1,4 @@
-import { NetflixRepository } from '../infrastructure/repositories/netflix.repository';
+import { NetflixRepository } from '../infrastructure/repositories/netflix_repository';
 
 export class GetAllProfilesUseCase {
   private netflixRepository: NetflixRepository;

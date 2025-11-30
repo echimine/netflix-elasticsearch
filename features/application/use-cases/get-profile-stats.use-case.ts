@@ -1,69 +1,56 @@
-import { NetflixRepository } from '../infrastructure/repositories/netflix.repository';
+import { NetflixRepository } from '../infrastructure/repositories/netflix_repository';
 
 export interface ProfileStats {
-  profileName: string;
-  totalViews: number;
-  totalWatchTimeSeconds: number;
-  uniqueTitles: number;
-  movieCount: number;
-  tvShowCount: number;
-  firstViewDate: string;
-  lastViewDate: string;
-  topDeviceType: string;
-  topCountry: string;
+  totalMovies: number;
+  totalSeries: number;
+  totalDuration: number;
+  topMovies: { title: string; count: number }[];
+  topSeries: { title: string; count: number }[];
+  activityOverTime: { date: string; count: number }[];
+  activityByHour: { hour: number; count: number }[];
 }
 
 export class GetProfileStatsUseCase {
-  private netflixRepository: NetflixRepository;
-
-  constructor(netflixRepository: NetflixRepository) {
-    this.netflixRepository = netflixRepository;
-  }
+  constructor(private netflixRepository: NetflixRepository) {}
 
   async execute(profileName: string): Promise<ProfileStats> {
-    const historyItems = await this.netflixRepository.getHistoryByProfile(profileName);
+    const aggs = await this.netflixRepository.getProfileStats(profileName);
 
-    if (historyItems.length === 0) {
-      throw new Error(`No history found for profile: ${profileName}`);
-    }
+    // Parse aggregations
+    const byTypeBuckets = aggs.by_type.buckets;
+    const movieCount = byTypeBuckets.find((b: any) => b.key === 'Movie')?.doc_count || 0;
+    const seriesCount = byTypeBuckets.find((b: any) => b.key === 'TV Show')?.doc_count || 0;
 
-    // Calculate stats
-    const uniqueTitles = new Set(historyItems.map((item) => item.title)).size;
-    const totalWatchTimeSeconds = historyItems.reduce((sum, item) => sum + item.duration, 0);
-    const movieCount = historyItems.filter((item) => item.type === 'Movie').length;
-    const tvShowCount = historyItems.filter((item) => item.type === 'TV Show').length;
+    const totalDuration = aggs.total_duration.value;
 
-    // Find date range
-    const dates = historyItems.map((item) => new Date(item.date).getTime());
-    const firstViewDate = new Date(Math.min(...dates)).toISOString();
-    const lastViewDate = new Date(Math.max(...dates)).toISOString();
+    const topMovies = aggs.top_movies.titles.buckets.map((b: any) => ({
+      title: b.key,
+      count: b.doc_count,
+    }));
 
-    // Find most common device type
-    const deviceCounts = new Map<string, number>();
-    historyItems.forEach((item) => {
-      deviceCounts.set(item.deviceType, (deviceCounts.get(item.deviceType) || 0) + 1);
-    });
-    const topDeviceType =
-      Array.from(deviceCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'Unknown';
+    const topSeries = aggs.top_series.titles.buckets.map((b: any) => ({
+      title: b.key,
+      count: b.doc_count,
+    }));
 
-    // Find most common country
-    const countryCounts = new Map<string, number>();
-    historyItems.forEach((item) => {
-      countryCounts.set(item.country, (countryCounts.get(item.country) || 0) + 1);
-    });
-    const topCountry = Array.from(countryCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'Unknown';
+    const activityOverTime = aggs.activity_over_time.buckets.map((b: any) => ({
+      date: b.key_as_string,
+      count: b.doc_count,
+    }));
+
+    const activityByHour = aggs.activity_by_hour.buckets.map((b: any) => ({
+      hour: parseInt(b.key),
+      count: b.doc_count,
+    }));
 
     return {
-      profileName,
-      totalViews: historyItems.length,
-      totalWatchTimeSeconds,
-      uniqueTitles,
-      movieCount,
-      tvShowCount,
-      firstViewDate,
-      lastViewDate,
-      topDeviceType,
-      topCountry,
+      totalMovies: movieCount,
+      totalSeries: seriesCount,
+      totalDuration,
+      topMovies,
+      topSeries,
+      activityOverTime,
+      activityByHour,
     };
   }
 }

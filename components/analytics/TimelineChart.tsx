@@ -57,15 +57,8 @@ export function TimelineChart({ items }: TimelineChartProps) {
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis
-              dataKey="date"
-              className="text-xs"
-              tick={{ fill: 'hsl(var(--muted-foreground))' }}
-            />
-            <YAxis
-              className="text-xs"
-              tick={{ fill: 'hsl(var(--muted-foreground))' }}
-            />
+            <XAxis dataKey="date" className="text-xs" tick={{ fill: 'white' }} />
+            <YAxis className="text-xs" tick={{ fill: 'white' }} />
             <Tooltip
               contentStyle={{
                 backgroundColor: 'hsl(var(--popover))',
@@ -73,26 +66,32 @@ export function TimelineChart({ items }: TimelineChartProps) {
                 borderRadius: '6px',
               }}
             />
-            <Legend />
+            <Legend wrapperStyle={{ color: 'white' }} />
             <Line
               type="monotone"
               dataKey="views"
               stroke="hsl(var(--primary))"
               strokeWidth={2}
+              dot={{ r: 4, fill: 'hsl(var(--primary))' }}
+              activeDot={{ r: 6, fill: 'hsl(var(--primary))' }}
               name="Total Views"
             />
             <Line
               type="monotone"
               dataKey="movies"
-              stroke="hsl(var(--chart-1))"
+              stroke="#ef4444"
               strokeWidth={2}
+              dot={{ r: 4, fill: '#ef4444' }}
+              activeDot={{ r: 6, fill: '#ef4444' }}
               name="Movies"
             />
             <Line
               type="monotone"
               dataKey="tvShows"
-              stroke="hsl(var(--chart-2))"
+              stroke="#b91c1c"
               strokeWidth={2}
+              dot={{ r: 4, fill: '#b91c1c' }}
+              activeDot={{ r: 6, fill: '#b91c1c' }}
               name="TV Shows"
             />
           </LineChart>

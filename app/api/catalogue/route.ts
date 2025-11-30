@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GetCatalogueUseCase } from '@/features/application/use-cases/get-catalogue.use-case';
-import { SearchContentUseCase } from '@/features/application/use-cases/search-content.use-case';
-import { NetflixRepository } from '@/features/application/infrastructure/repositories/netflix.repository';
+
+import { NetflixRepository } from '@/features/application/infrastructure/repositories/netflix_repository';
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +20,10 @@ export async function GET(request: NextRequest) {
 
     // Validate type if provided
     if (type && type !== 'Movie' && type !== 'TV Show') {
-      return NextResponse.json({ error: 'Invalid type parameter. Must be "Movie" or "TV Show"' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid type parameter. Must be "Movie" or "TV Show"' },
+        { status: 400 }
+      );
     }
 
     const netflixRepository = new NetflixRepository();
@@ -31,17 +34,10 @@ export async function GET(request: NextRequest) {
     if (year) filters.year = year;
     if (search) filters.search = search;
 
-    if (mode === 'search') {
-      // Return all matching items without deduplication
-      const searchContentUseCase = new SearchContentUseCase(netflixRepository);
-      const results = await searchContentUseCase.execute(filters, 1000);
-      return NextResponse.json(results);
-    } else {
-      // Return unique titles with aggregated data
-      const getCatalogueUseCase = new GetCatalogueUseCase(netflixRepository);
-      const catalogue = await getCatalogueUseCase.execute(filters);
-      return NextResponse.json(catalogue);
-    }
+    // Return unique titles with aggregated data
+    const getCatalogueUseCase = new GetCatalogueUseCase(netflixRepository);
+    const catalogue = await getCatalogueUseCase.execute(filters);
+    return NextResponse.json(catalogue);
   } catch (error) {
     console.error('Error in catalogue API:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

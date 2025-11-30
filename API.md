@@ -1,8 +1,8 @@
-# Netflix Viewer Backend API Documentation
+# API Documentation
 
 ## Overview
 
-This document describes all the backend API endpoints implemented for the Netflix Viewer project. All endpoints follow Clean Architecture principles with clear separation between API Routes, Use Cases, and Repository layers.
+This document describes all backend API endpoints for the Netflix Viewing History Dashboard. All endpoints follow **Clean Architecture** principles with clear separation between API Routes, Use Cases, and Repository layers.
 
 ## Base URL
 
@@ -10,39 +10,78 @@ This document describes all the backend API endpoints implemented for the Netfli
 http://localhost:3000/api
 ```
 
+## Architecture
+
+The application follows Clean Architecture with three distinct layers:
+
+### 1. API Routes (`app/api/`)
+
+- Handle HTTP requests and responses
+- Validate query parameters
+- Return JSON responses
+- Error handling with proper HTTP status codes
+
+### 2. Use Cases (`features/application/use-cases/`)
+
+- Business logic orchestration
+- Data aggregation and transformation
+- Application-level processing
+
+### 3. Repository (`features/application/infrastructure/repositories/`)
+
+- Elasticsearch query execution
+- Data access layer
+- Simple ES queries (match, term, range, bool)
+
+**Example Flow:**
+
+```
+app/api/history/route.ts
+  → GetAllHistoryUseCase
+    → NetflixRepository
+      → Elasticsearch Client
+```
+
+---
+
 ## Data Models
 
 ### NetflixHistoryItem
 
 ```typescript
 {
-  title: string;        // Movie/show title
-  date: string;         // ISO 8601 timestamp
-  duration: number;     // Duration in seconds
-  deviceType: string;   // e.g., "Chrome PC (Cadmium)"
-  country: string;      // e.g., "FR (France)"
-  type: string;         // "Movie" or "TV Show"
-  profileName: string;  // Profile name (e.g., "Romain")
+  title: string; // Movie/show title
+  date: string; // ISO 8601 timestamp
+  duration: number; // Duration in seconds
+  deviceType: string; // e.g., "Chrome PC (Cadmium)"
+  country: string; // e.g., "FR (France)"
+  type: string; // "Movie" or "TV Show"
+  profileName: string; // Profile name (e.g., "Romain")
 }
 ```
 
 ---
 
-## 1. History Endpoints
+## Endpoints
 
-### GET /api/history
+### 1. History Endpoints
+
+#### GET `/api/history`
 
 Returns all viewing history with optional pagination.
 
 **Query Parameters:**
+
 - `limit` (optional): Number of items to return (1-10000, default: 100)
 
 **Example:**
+
 ```bash
 curl "http://localhost:3000/api/history?limit=50"
 ```
 
 **Response:**
+
 ```json
 [
   {
@@ -59,38 +98,43 @@ curl "http://localhost:3000/api/history?limit=50"
 
 ---
 
-### GET /api/history/[type]
+#### GET `/api/history/[type]`
 
 Returns viewing history filtered by content type.
 
 **Path Parameters:**
+
 - `type`: "Movie" or "TV Show"
 
 **Query Parameters:**
+
 - `limit` (optional): Number of items to return (1-10000, default: 100)
 
 **Example:**
+
 ```bash
 curl "http://localhost:3000/api/history/Movie?limit=20"
 ```
 
-**Response:** Same as `/api/history`
+**Response:** Same format as `/api/history`
 
 ---
 
-## 2. Catalogue Endpoints
+### 2. Catalogue Endpoints
 
-### GET /api/catalogue
+#### GET `/api/catalogue`
 
 Returns unique content with aggregated viewing data and optional filters.
 
 **Query Parameters:**
+
 - `type` (optional): "Movie" or "TV Show"
 - `year` (optional): Filter by year (e.g., 2024)
 - `search` (optional): Text search in title
 - `mode` (optional): "catalogue" (default, returns unique titles) or "search" (returns all matching items)
 
-**Example:**
+**Examples:**
+
 ```bash
 # Get all unique movies
 curl "http://localhost:3000/api/catalogue?type=Movie"
@@ -106,6 +150,7 @@ curl "http://localhost:3000/api/catalogue?mode=search&search=Tenet"
 ```
 
 **Response (catalogue mode):**
+
 ```json
 [
   {
@@ -120,37 +165,42 @@ curl "http://localhost:3000/api/catalogue?mode=search&search=Tenet"
 
 ---
 
-## 3. Profile Endpoints
+### 3. Profile Endpoints
 
-### GET /api/profiles
+#### GET `/api/profiles`
 
 Returns a list of all unique profile names.
 
 **Example:**
+
 ```bash
 curl "http://localhost:3000/api/profiles"
 ```
 
 **Response:**
+
 ```json
 ["Romain", "Eliott", "Madre"]
 ```
 
 ---
 
-### GET /api/profiles/[name]
+#### GET `/api/profiles/[name]`
 
 Returns comprehensive statistics for a specific profile.
 
 **Path Parameters:**
+
 - `name`: Profile name (URL-encoded if contains special characters)
 
 **Example:**
+
 ```bash
 curl "http://localhost:3000/api/profiles/Romain"
 ```
 
 **Response:**
+
 ```json
 {
   "profileName": "Romain",
@@ -168,22 +218,26 @@ curl "http://localhost:3000/api/profiles/Romain"
 
 ---
 
-### GET /api/profiles/[name]/top-content
+#### GET `/api/profiles/[name]/top-content`
 
 Returns the most watched content for a specific profile.
 
 **Path Parameters:**
+
 - `name`: Profile name
 
 **Query Parameters:**
+
 - `limit` (optional): Number of items to return (1-100, default: 10)
 
 **Example:**
+
 ```bash
 curl "http://localhost:3000/api/profiles/Romain/top-content?limit=5"
 ```
 
 **Response:**
+
 ```json
 [
   {
@@ -198,22 +252,26 @@ curl "http://localhost:3000/api/profiles/Romain/top-content?limit=5"
 
 ---
 
-### GET /api/profiles/[name]/activity
+#### GET `/api/profiles/[name]/activity`
 
 Returns viewing activity grouped by time period for a specific profile.
 
 **Path Parameters:**
+
 - `name`: Profile name
 
 **Query Parameters:**
+
 - `timeframe` (optional): "day" (default), "week", or "month"
 
 **Example:**
+
 ```bash
 curl "http://localhost:3000/api/profiles/Romain/activity?timeframe=month"
 ```
 
 **Response:**
+
 ```json
 [
   {
@@ -231,21 +289,24 @@ curl "http://localhost:3000/api/profiles/Romain/activity?timeframe=month"
 
 ---
 
-## 4. Content Detail Endpoints
+### 4. Content Detail Endpoints
 
-### GET /api/content/[title]
+#### GET `/api/content/[title]`
 
 Returns detailed information about a specific title including all viewing data.
 
 **Path Parameters:**
+
 - `title`: Content title (URL-encoded)
 
 **Example:**
+
 ```bash
 curl "http://localhost:3000/api/content/Tenet"
 ```
 
 **Response:**
+
 ```json
 {
   "title": "Tenet",
@@ -269,19 +330,22 @@ curl "http://localhost:3000/api/content/Tenet"
 
 ---
 
-### GET /api/content/[title]/profiles
+#### GET `/api/content/[title]/profiles`
 
 Returns which profiles have watched a specific title.
 
 **Path Parameters:**
+
 - `title`: Content title (URL-encoded)
 
 **Example:**
+
 ```bash
 curl "http://localhost:3000/api/content/Tenet/profiles"
 ```
 
 **Response:**
+
 ```json
 [
   {
@@ -295,58 +359,46 @@ curl "http://localhost:3000/api/content/Tenet/profiles"
 
 ---
 
-## Architecture Overview
-
-All endpoints follow Clean Architecture with three layers:
-
-### 1. API Routes (`app/api/`)
-- Handle HTTP requests/responses
-- Validate query parameters
-- Return JSON responses
-- Error handling with proper status codes
-
-### 2. Use Cases (`features/application/use-cases/`)
-- Business logic orchestration
-- Data aggregation and transformation
-- Application-level processing
-
-### 3. Repository (`features/application/infrastructure/repositories/`)
-- Elasticsearch query execution
-- Data access layer
-- Simple ES queries (match, term, range, bool)
-
-## Implementation Details
-
-### Query Strategy
-- **Simple Elasticsearch queries**: Uses basic ES operations (match, term, range, bool)
-- **Application-side processing**: Aggregations, deduplication, and sorting done in Node.js
-- **No external APIs**: Works only with Netflix CSV data
-
-### Type Safety
-- Strict TypeScript with `exactOptionalPropertyTypes`
-- Type-only imports for interfaces
-- Comprehensive error handling
-
-### Performance Considerations
-- Configurable limit parameters
-- Sorted results (most recent first by default)
-- Efficient deduplication in use cases
-
 ## Error Handling
 
 All endpoints return appropriate HTTP status codes:
 
-- `200 OK`: Successful request
-- `400 Bad Request`: Invalid parameters (with error message)
-- `404 Not Found`: Resource not found (e.g., profile doesn't exist)
-- `500 Internal Server Error`: Server-side error
+- **200 OK**: Successful request
+- **400 Bad Request**: Invalid parameters (with error message)
+- **404 Not Found**: Resource not found (e.g., profile doesn't exist)
+- **500 Internal Server Error**: Server-side error
 
-Error response format:
+**Error Response Format:**
+
 ```json
 {
   "error": "Error message description"
 }
 ```
+
+---
+
+## Implementation Details
+
+### Query Strategy
+
+- **Simple Elasticsearch queries**: Uses basic ES operations (match, term, range, bool)
+- **Application-side processing**: Aggregations, deduplication, and sorting done in Node.js
+- **No external APIs**: Works only with Netflix CSV data
+
+### Type Safety
+
+- Strict TypeScript with `exactOptionalPropertyTypes`
+- Type-only imports for interfaces
+- Comprehensive error handling
+
+### Performance Considerations
+
+- Configurable limit parameters
+- Sorted results (most recent first by default)
+- Efficient deduplication in use cases
+
+---
 
 ## Testing Examples
 
@@ -367,22 +419,15 @@ curl "http://localhost:3000/api/content/Tenet"
 curl "http://localhost:3000/api/catalogue?search=Narcos&mode=search"
 ```
 
-## Next Steps
+---
 
-To integrate with frontend:
+## Summary of Features
 
-1. **Catalogue Page**: Use `/api/catalogue` with filters
-2. **Profile Page**: Use `/api/profiles/[name]` and related endpoints
-3. **Content Detail Pages**: Use `/api/content/[title]` endpoints
-4. **Analytics**: Combine profile activity and statistics endpoints
-
-## Summary of Implemented Features
-
-✅ Profile Name field in all data
-✅ 13 API endpoints covering all project requirements
-✅ Clean Architecture implementation
-✅ Comprehensive statistics and aggregations
-✅ Pagination support
-✅ Type-safe TypeScript
-✅ Error handling and validation
+✅ Profile Name field in all data  
+✅ 13 API endpoints covering all project requirements  
+✅ Clean Architecture implementation  
+✅ Comprehensive statistics and aggregations  
+✅ Pagination support  
+✅ Type-safe TypeScript  
+✅ Error handling and validation  
 ✅ Production build successful

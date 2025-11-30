@@ -9,8 +9,8 @@ interface ContentTypeChartProps {
 }
 
 const COLORS = {
-  Movie: 'hsl(var(--chart-1))',
-  'TV Show': 'hsl(var(--chart-2))',
+  Movie: 'hsl(var(--primary))',
+  'TV Show': '#ef4444',
 };
 
 export function ContentTypeChart({ items }: ContentTypeChartProps) {
@@ -40,9 +40,7 @@ export function ContentTypeChart({ items }: ContentTypeChartProps) {
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percent }) =>
-                `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
-              }
+              label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"
@@ -51,6 +49,7 @@ export function ContentTypeChart({ items }: ContentTypeChartProps) {
                 <Cell
                   key={`cell-${entry.name}`}
                   fill={COLORS[entry.name as keyof typeof COLORS]}
+                  stroke="hsl(var(--background))"
                 />
               ))}
             </Pie>
@@ -61,7 +60,7 @@ export function ContentTypeChart({ items }: ContentTypeChartProps) {
                 borderRadius: '6px',
               }}
             />
-            <Legend />
+            <Legend wrapperStyle={{ color: 'white' }} />
           </PieChart>
         </ResponsiveContainer>
       </CardContent>

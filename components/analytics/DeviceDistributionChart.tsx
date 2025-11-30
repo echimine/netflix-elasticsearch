@@ -8,13 +8,7 @@ interface DeviceDistributionChartProps {
   items: NetflixHistoryItem[];
 }
 
-const COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
-];
+const COLORS = ['hsl(var(--primary))', '#ef4444', '#dc2626', '#b91c1c', '#991b1b'];
 
 export function DeviceDistributionChart({ items }: DeviceDistributionChartProps) {
   const deviceCounts = items.reduce(
@@ -43,15 +37,17 @@ export function DeviceDistributionChart({ items }: DeviceDistributionChartProps)
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percent }) =>
-                `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
-              }
+              label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"
             >
               {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                  stroke="hsl(var(--background))"
+                />
               ))}
             </Pie>
             <Tooltip
@@ -61,7 +57,7 @@ export function DeviceDistributionChart({ items }: DeviceDistributionChartProps)
                 borderRadius: '6px',
               }}
             />
-            <Legend />
+            <Legend wrapperStyle={{ color: 'white' }} />
           </PieChart>
         </ResponsiveContainer>
       </CardContent>

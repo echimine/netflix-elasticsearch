@@ -1,4 +1,4 @@
-import { NetflixRepository } from '../infrastructure/repositories/netflix.repository';
+import { NetflixRepository } from '../infrastructure/repositories/netflix_repository';
 
 export interface ActivityDataPoint {
   date: string;
@@ -13,7 +13,10 @@ export class GetProfileActivityUseCase {
     this.netflixRepository = netflixRepository;
   }
 
-  async execute(profileName: string, timeframe: 'day' | 'week' | 'month' = 'day'): Promise<ActivityDataPoint[]> {
+  async execute(
+    profileName: string,
+    timeframe: 'day' | 'week' | 'month' = 'day'
+  ): Promise<ActivityDataPoint[]> {
     const historyItems = await this.netflixRepository.getHistoryByProfile(profileName);
 
     // Group by time period

@@ -1,8 +1,13 @@
 export function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
+  const days = Math.floor(hours / 24);
+  const remainingHours = hours % 24;
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
 
+  if (days > 0) {
+    return `${days} days, ${remainingHours} hours`;
+  }
   if (hours > 0) {
     return `${hours}h ${minutes}m`;
   }
@@ -10,6 +15,15 @@ export function formatDuration(seconds: number): string {
     return `${minutes}m ${secs}s`;
   }
   return `${secs}s`;
+}
+
+export function formatDurationShort(seconds: number): string {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${minutes}m`;
 }
 
 export function formatDate(dateString: string): string {
@@ -36,9 +50,6 @@ export function getTotalWatchTime(items: { duration: number }[]): number {
   return items.reduce((total, item) => total + item.duration, 0);
 }
 
-export function getUniqueValues<T extends Record<string, any>>(
-  items: T[],
-  key: keyof T
-): string[] {
+export function getUniqueValues<T extends Record<string, any>>(items: T[], key: keyof T): string[] {
   return Array.from(new Set(items.map((item) => String(item[key]))));
 }

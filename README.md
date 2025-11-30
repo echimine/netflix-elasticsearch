@@ -1,87 +1,103 @@
-# Netflix Elasticsearch Project
+# Netflix Viewing History Dashboard
 
-This project indexes Netflix viewing history into Elasticsearch for analysis and visualization.
+This project is a web application that allows you to visualize and analyze your Netflix viewing history. It uses **Elasticsearch** to store and index data, and **Next.js** for the user interface.
 
-## Prerequisites
+## 📂 Project Structure
 
-- **Node.js** (v18 or later)
-- **Docker** & **Docker Compose**
+The project is organized as follows:
 
-## Installation
+- **`app/`**: Contains the pages and routing of the Next.js application (App Router).
+- **`components/`**: Reusable UI components (buttons, cards, charts, etc.).
+- **`features/`**: Project-related features, functioning with a repository containing methods to communicate with Elasticsearch while using use cases (a form of clean architecture).
+- **`lib/`**: Utilities and configurations (Elasticsearch client, date formatting).
+- **`scripts/`**: Scripts for data management.
+  - `clean_data.ts`: Main ingestion script that reads the CSV, cleans the data, and sends it to Elasticsearch.
+- **`data/`**: Folder intended to contain your Netflix export file (`historic_netflix.csv`).
+- **`docker-compose.yml`**: Docker configuration to launch a local Elasticsearch instance.
 
-1. Clone the repository:
+## 🚀 Installation and Setup
 
-   ```bash
-   git clone <repository-url>
-   cd netflix-elasticsearch
-   ```
+### Prerequisites
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+- **Node.js** (v18 or higher)
+- **Docker** and **Docker Compose** (for Elasticsearch)
 
-## Configuration
+### 1. Install Dependencies
 
-1. Create a `.env` file in the root directory. You can copy the example:
-
-   ```bash
-   cp env.example .env
-   ```
-
-2. Ensure your `.env` contains the following for local development:
-   ```env
-   ELASTIC_URL=http://localhost:9200
-   ```
-
-## Running the Project
-
-### 1. Start Elasticsearch
-
-Start the database container using Docker:
+Install the necessary NPM packages:
 
 ```bash
-docker compose up -d
+npm install
 ```
 
-- **Elasticsearch** will be available at `http://localhost:9200`
+### 2. Data Preparation
 
-> **Note:** Wait a minute for the container to fully start. You can check status with `docker ps`.
+1. Download your viewing history from your Netflix account (CSV Format).
+2. Rename the file to `historic_netflix.csv`.
+3. Place it in the `data/` folder at the root of the project.
 
-### 2. Ingest Data
+### 3. Launch Elasticsearch
 
-Run the cleaning and ingestion script to parse `data/historic_netflix.csv` and send it to Elasticsearch:
+Start the Elasticsearch container via Docker:
 
 ```bash
-npm run clean-data
+docker-compose up -d
 ```
 
-If successful, you should see:
-`Successfully indexed X documents.`
+_This will launch an Elasticsearch instance accessible at `http://localhost:9200`._
 
-### 3. Start the Web App
+### 4. Launch the Application
 
-Run the Next.js development server:
+Run the development script. This command will first execute the ingestion script (`clean-data`) to populate Elasticsearch, then start the web server.
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+The application will be accessible at [http://localhost:3000](http://localhost:3000).
 
-## Stopping the Project
+---
 
-To stop and remove the Docker container:
+## 📊 Data Model and Technical Choices
 
-```bash
-docker compose down
-```
+### Data Model
 
-## Documentation
+Raw data from the Netflix CSV is transformed to be more usable in Elasticsearch. Here is the indexed model:
 
-- [Guide des Requêtes Elasticsearch](ELASTICSEARCH_QUERIES.md)
-- [Documentation API](API_DOCUMENTATION.md)
+- **`title`** (_String_): Title of the movie or series.
+- **`date`** (_Date_): Date and time the viewing started (ISO 8601).
+- **`duration`** (_Number_): Viewing duration in seconds (converted from "HH:MM:SS").
+- **`deviceType`** (_String_): Device used.
+- **`country`** (_String_): Country of connection.
+- **`type`** (_String_): 'Movie' or 'TV Show'.
+  - _Note: This field is inferred from the title. If the title contains keywords like "Season", "Episode", "Chapter", etc., it is classified as "TV Show", otherwise "Movie"._
+- **`profileName`** (_String_): Name of the associated Netflix profile.
 
-## Troubleshooting
+### Technical Choices
 
-- **Connection Error**: Ensure Docker is running and you waited enough time for Elasticsearch to start.
+- **Elasticsearch**: Chosen for its aggregation speed and full-text search capabilities, ideal for filtering and analyzing large volumes of history.
+- **Next.js (App Router)**: For high-performance server-side rendering and a modern project structure.
+- **Tailwind CSS & Radix UI**: For a clean, accessible, and fast-to-develop user interface.
+- **Recharts**: For data visualization (charts).
+
+---
+
+## 📝 Retrospective
+
+### What Worked Well
+
+- **Elasticsearch Performance**: Indexing and searching are extremely fast, even with a substantial history. Aggregations allow generating statistics (total time, top content) in real-time.
+- **Ingestion Pipeline**: The `clean_data.ts` script is robust. Using streams allows processing the file line by line without overloading memory.
+- **User Interface**: Using modular components allowed for quickly building interactive dashboards.
+
+### Challenges Encountered
+
+- **Netflix Data Quality**: The CSV exported by Netflix is sometimes inconsistent. It was necessary to handle "Autoplay" cases (automatic viewings of a few seconds) to avoid skewing statistics.
+- **Type Inference (Movie vs Series)**: Netflix does not explicitly provide the content type in the CSV export. Inference based on the title is a heuristic solution that works 95% of the time but may fail on ambiguous titles.
+- **TypeScript/ESM Configuration**: Making ES modules (for the Next.js project) and Node.js scripts (for ingestion) coexist required precise configuration of `tsconfig.json` and `package.json`.
+
+### What I Would Do Differently
+
+- **Data Enrichment**: Connect a third-party API (like TMDB) during ingestion to retrieve real metadata (genre, poster, cast) instead of relying solely on the raw CSV.
+- **Elasticsearch Error Handling**: Improve the resilience of the ingestion script in case of temporary connection failure to Elasticsearch (retry mechanism).
+- **Authentication**: Add a real authentication layer to secure access to data if the application were to be deployed publicly.

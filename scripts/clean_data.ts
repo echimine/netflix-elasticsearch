@@ -34,6 +34,40 @@ interface CleanedNetflixData {
 
 const results: NetflixHistoryItem[] = [];
 
+/**
+ * Infers the content type (Movie or TV Show) based on the title.
+ * Looks for keywords like "Season", "Episode", etc.
+ */
+function inferType(title: string): 'Movie' | 'TV Show' {
+  const tvShowKeywords = [
+    'Season',
+    'Saison',
+    'Episode',
+    'Épisode',
+    'Mini-série',
+    'Limited Series',
+    'Partie',
+  ];
+  if (tvShowKeywords.some((keyword) => title.includes(keyword))) {
+    return 'TV Show';
+  }
+  return 'Movie';
+}
+
+/**
+ * Parses duration string "HH:MM:SS" into total seconds.
+ */
+function parseDuration(durationStr: string): number {
+  const durationParts = durationStr.split(':');
+  if (durationParts.length === 3) {
+    const hours = parseInt(durationParts[0] ?? '0', 10);
+    const minutes = parseInt(durationParts[1] ?? '0', 10);
+    const seconds = parseInt(durationParts[2] ?? '0', 10);
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+  return 0;
+}
+
 // Create a read stream for the CSV file and pipe it through csv-parser
 fs.createReadStream(csvFilePath)
   .pipe(csv())
@@ -43,6 +77,7 @@ fs.createReadStream(csvFilePath)
     const cleanedData: CleanedNetflixData[] = results
       .filter((item) => {
         // Filter out autoplayed items (where user didn't take action)
+        // This ensures we only keep content the user actually intended to watch.
         if (item['Attributes'] && item['Attributes'].includes('Autoplayed: user action: None;')) {
           return false;
         }
@@ -50,33 +85,13 @@ fs.createReadStream(csvFilePath)
       })
       .map((item) => {
         // Convert Duration string (HH:MM:SS) to total seconds
-        const durationParts = item['Duration'].split(':');
-        let durationSeconds = 0;
-        if (durationParts.length === 3) {
-          const hours = durationParts[0] ?? '0';
-          const minutes = durationParts[1] ?? '0';
-          const seconds = durationParts[2] ?? '0';
-          durationSeconds = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
-        }
+        const durationSeconds = parseDuration(item['Duration']);
 
         // Convert Start Time to ISO 8601 date string
         const startTime = new Date(item['Start Time']).toISOString();
 
         // Infer type from Title
-        const title = item['Title'];
-        let type = 'Movie';
-        const tvShowKeywords = [
-          'Season',
-          'Saison',
-          'Episode',
-          'Épisode',
-          'Mini-série',
-          'Limited Series',
-          'Partie',
-        ];
-        if (tvShowKeywords.some((keyword) => title.includes(keyword))) {
-          type = 'TV Show';
-        }
+        const type = inferType(item['Title']);
 
         // Return the cleaned and transformed object
         return {
