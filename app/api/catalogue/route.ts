@@ -9,8 +9,6 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type') || undefined;
     const yearParam = searchParams.get('year');
     const search = searchParams.get('search') || undefined;
-    const mode = searchParams.get('mode') || 'catalogue'; // 'catalogue' or 'search'
-
     const year = yearParam ? parseInt(yearParam, 10) : undefined;
 
     // Validate year if provided

@@ -1,5 +1,4 @@
 import { NetflixRepository } from '../infrastructure/repositories/netflix_repository';
-import type { NetflixHistoryItem } from '../infrastructure/repositories/netflix_repository';
 
 export interface CatalogueItem {
   title: string;

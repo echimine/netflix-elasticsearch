@@ -53,55 +53,6 @@ export class NetflixRepository {
     }
   }
 
-  // Catalogue methods
-  async searchByTitle(query: string, limit: number = 100): Promise<NetflixHistoryItem[]> {
-    try {
-      const result = await client.search({
-        index: 'historic_netflix',
-        body: {
-          query: {
-            match: {
-              title: query,
-            },
-          },
-          size: limit,
-        },
-      });
-
-      return result.hits.hits.map((hit: any) => hit._source as NetflixHistoryItem);
-    } catch (error) {
-      console.error(`Error searching by title "${query}":`, error);
-      throw new Error(`Failed to search by title "${query}"`);
-    }
-  }
-
-  async getHistoryByYear(year: number, limit: number = 100): Promise<NetflixHistoryItem[]> {
-    try {
-      const startDate = `${year}-01-01`;
-      const endDate = `${year}-12-31T23:59:59`;
-
-      const result = await client.search({
-        index: 'historic_netflix',
-        body: {
-          query: {
-            range: {
-              date: {
-                gte: startDate,
-                lte: endDate,
-              },
-            },
-          },
-          size: limit,
-        },
-      });
-
-      return result.hits.hits.map((hit: any) => hit._source as NetflixHistoryItem);
-    } catch (error) {
-      console.error(`Error fetching history for year ${year}:`, error);
-      throw new Error(`Failed to fetch history for year ${year}`);
-    }
-  }
-
   async getHistoryByFilters(
     filters: {
       type?: string;
@@ -135,9 +86,20 @@ export class NetflixRepository {
       }
 
       if (filters.search) {
+        // Split search into words for better matching
+        const searchWords = filters.search.toLowerCase().split(' ').filter(w => w.length > 0);
+        
         mustClauses.push({
-          match_phrase_prefix: {
-            title: filters.search,
+          bool: {
+            should: searchWords.map(word => ({
+              wildcard: {
+                title: {
+                  value: `*${word}*`,
+                  case_insensitive: true,
+                },
+              },
+            })),
+            minimum_should_match: searchWords.length,
           },
         });
       }
@@ -390,46 +352,6 @@ export class NetflixRepository {
     } catch (error) {
       console.error(`Error fetching stats for profile "${profileName}":`, error);
       throw new Error(`Failed to fetch stats for profile "${profileName}"`);
-    }
-  }
-
-  /**
-   * Finds profiles with similar viewing history.
-   * Based on the number of shared top titles watched.
-   */
-  async getSimilarProfiles(
-    profileName: string,
-    topTitles: string[]
-  ): Promise<{ name: string; score: number }[]> {
-    if (topTitles.length === 0) return [];
-
-    try {
-      const result = await client.search({
-        index: 'historic_netflix',
-        body: {
-          size: 0,
-          query: {
-            bool: {
-              must: [{ terms: { 'title.keyword': topTitles } }],
-              must_not: [{ term: { 'profileName.keyword': profileName } }],
-            },
-          },
-          aggs: {
-            profiles: {
-              terms: { field: 'profileName.keyword', size: 5, order: { _count: 'desc' } },
-            },
-          },
-        },
-      });
-
-      const buckets = (result.aggregations?.profiles as any).buckets;
-      return buckets.map((b: any) => ({
-        name: b.key,
-        score: b.doc_count,
-      }));
-    } catch (error) {
-      console.error('Error fetching similar profiles:', error);
-      return [];
     }
   }
 }

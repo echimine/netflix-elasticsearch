@@ -73,31 +73,23 @@ Raw data from the Netflix CSV is transformed to be more usable in Elasticsearch.
   - _Note: This field is inferred from the title. If the title contains keywords like "Season", "Episode", "Chapter", etc., it is classified as "TV Show", otherwise "Movie"._
 - **`profileName`** (_String_): Name of the associated Netflix profile.
 
-### Technical Choices
-
-- **Elasticsearch**: Chosen for its aggregation speed and full-text search capabilities, ideal for filtering and analyzing large volumes of history.
-- **Next.js (App Router)**: For high-performance server-side rendering and a modern project structure.
-- **Tailwind CSS & Radix UI**: For a clean, accessible, and fast-to-develop user interface.
-- **Recharts**: For data visualization (charts).
-
 ---
 
-## 📝 Retrospective
+## 📝 Project Retrospective
 
 ### What Worked Well
 
+- **Clean Architecture**: The implementation of clean architecture proved to be extremely valuable. All database interaction code is centralized in a single repository file (`netflix_repository.ts`), making it easy to understand and maintain. This separation of concerns made the codebase much more readable and manageable.
 - **Elasticsearch Performance**: Indexing and searching are extremely fast, even with a substantial history. Aggregations allow generating statistics (total time, top content) in real-time.
 - **Ingestion Pipeline**: The `clean_data.ts` script is robust. Using streams allows processing the file line by line without overloading memory.
 - **User Interface**: Using modular components allowed for quickly building interactive dashboards.
 
 ### Challenges Encountered
 
-- **Netflix Data Quality**: The CSV exported by Netflix is sometimes inconsistent. It was necessary to handle "Autoplay" cases (automatic viewings of a few seconds) to avoid skewing statistics.
+- **Elasticsearch Query Complexity**: The main difficulty encountered was crafting the correct queries to properly interact with the Elasticsearch database. Understanding the query DSL and building complex aggregations required significant effort and iteration.
 - **Type Inference (Movie vs Series)**: Netflix does not explicitly provide the content type in the CSV export. Inference based on the title is a heuristic solution that works 95% of the time but may fail on ambiguous titles.
-- **TypeScript/ESM Configuration**: Making ES modules (for the Next.js project) and Node.js scripts (for ingestion) coexist required precise configuration of `tsconfig.json` and `package.json`.
 
 ### What I Would Do Differently
 
 - **Data Enrichment**: Connect a third-party API (like TMDB) during ingestion to retrieve real metadata (genre, poster, cast) instead of relying solely on the raw CSV.
-- **Elasticsearch Error Handling**: Improve the resilience of the ingestion script in case of temporary connection failure to Elasticsearch (retry mechanism).
 - **Authentication**: Add a real authentication layer to secure access to data if the application were to be deployed publicly.
